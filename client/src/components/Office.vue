@@ -149,6 +149,10 @@
                             </button>
                         </div>
                     </form>
+                    <transition name="fade">
+                        <alert :message="message" :alertClass="alertClass" v-if="showMessage">
+                        </alert>
+                    </transition>
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -175,6 +179,8 @@
 
 <script>
     import axios from 'axios';
+    import Alert from './Alert.vue';
+
     export default {
         data() {
             return {
@@ -191,22 +197,41 @@
                         'desk9': '',
                         'desk10': '',
                         'desk11': ''
-                       }
+                       },
+                message: '',
+                showMessage: false,
+                alertClass: 'alert-success',
             };
         },
+        components: {
+            alert: Alert,
+        },
         methods: {
+            activateAlert(message, setClass) {
+                this.message = message;
+                this.alertClass = setClass;
+                this.showMessage = true;
+                setTimeout(() => this.showMessage = false, 1500);
+            },
             addPerson() {
-                const path = `http://localhost:5001/office/people`;
-                const payload = {
-                    name: this.newName
-                };
-                axios.post(path, payload).then(() => {
-                    this.getPeople();
-                }).catch((error) => {
-                    console.log(error);
-                    this.getPeople();
-                });
-                this.newName = "";
+                if (this.people.length >= 11) {
+                    this.activateAlert('Maximale capaciteit bereikt! Verwijder eerst iemand voordat je een nieuwe collega toevoegt', 'alert-danger');
+                } else if (this.newName === '') {
+                    this.activateAlert('Vul alsjeblieft eerst een naam in', 'alert-warning');
+                } else {
+                    const path = `http://localhost:5001/office/people`;
+                    const payload = {
+                        name: this.newName
+                    };
+                    axios.post(path, payload).then(() => {
+                        this.getPeople();
+                        this.activateAlert(this.newName + ' is succesvol toegevoegd!', 'alert-success');
+                        this.newName = '';
+                    }).catch((error) => {
+                        console.log(error);
+                        this.getPeople();
+                    });
+                }
             },
             getPeople() {
                 const path = `http://localhost:5001/office/people`;
@@ -217,6 +242,7 @@
                 });
             },
             randomizeDesks() {
+                this.getPeople();
                 const path = `http://localhost:5001/office/randomize`;
                 axios.get(path).then((res) => {
                     this.desks = res.data.desks;
@@ -227,6 +253,7 @@
             removePerson(person) {
                 const path = `http://localhost:5001/office/people/${person.id}`;
                 axios.delete(path).then(() => {
+                    this.activateAlert(person.name + ' is succesvol verwijderd!', 'alert-success');
                     this.getPeople();
                 }).catch((error) => {
                     console.error(error);
