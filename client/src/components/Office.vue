@@ -1,5 +1,15 @@
 <template>
     <div class="container vh-100">
+        <div class="row mb-3 text-center">
+            <h1 class="display-1">
+                <span class="fw-bold" style="color: #00e17b">D</span>
+                <span>esk </span>
+                <span class="fw-bold" style="color: #00e17b">C</span>
+                <span>omposition </span>
+                <span class="fw-bold" style="color: #00e17b">G</span>
+                <span>enerator</span>
+            </h1>
+        </div>
         <div class="row">
             <div class="col">
                 <div class="row border border-4 border-dark bg-light" style="height: 32em; width: 48em">
@@ -207,17 +217,17 @@
             alert: Alert,
         },
         methods: {
-            activateAlert(message, setClass) {
+            activateAlert(message, setClass, duration) {
                 this.message = message;
                 this.alertClass = setClass;
                 this.showMessage = true;
-                setTimeout(() => this.showMessage = false, 1500);
+                setTimeout(() => this.showMessage = false, duration);
             },
             addPerson() {
                 if (this.people.length >= 11) {
-                    this.activateAlert('Maximale capaciteit bereikt! Verwijder eerst iemand voordat je een nieuwe collega toevoegt', 'alert-danger');
+                    this.activateAlert('Maximale capaciteit bereikt! Verwijder eerst iemand uit de lijst voordat je een nieuwe collega toevoegt', 'alert-danger', 3000);
                 } else if (this.newName === '') {
-                    this.activateAlert('Vul alsjeblieft eerst een naam in', 'alert-warning');
+                    this.activateAlert('Vul alsjeblieft eerst een naam in', 'alert-warning', 3000);
                 } else {
                     const path = `http://localhost:5001/office/people`;
                     const payload = {
@@ -225,7 +235,7 @@
                     };
                     axios.post(path, payload).then(() => {
                         this.getPeople();
-                        this.activateAlert(this.newName + ' is succesvol toegevoegd!', 'alert-success');
+                        this.activateAlert(this.newName + ' is succesvol toegevoegd!', 'alert-success', 1500);
                         this.newName = '';
                     }).catch((error) => {
                         console.log(error);
@@ -253,7 +263,7 @@
             removePerson(person) {
                 const path = `http://localhost:5001/office/people/${person.id}`;
                 axios.delete(path).then(() => {
-                    this.activateAlert(person.name + ' is succesvol verwijderd!', 'alert-success');
+                    this.activateAlert(person.name + ' is succesvol verwijderd!', 'alert-success', 1500);
                     this.getPeople();
                 }).catch((error) => {
                     console.error(error);

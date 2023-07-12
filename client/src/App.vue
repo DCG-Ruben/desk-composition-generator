@@ -8,7 +8,7 @@ import { RouterView } from 'vue-router'
 
 <style>
 #app {
-  margin-top: 60px
+    margin-top: 10px;
 }
 
 .fade-enter-active,
