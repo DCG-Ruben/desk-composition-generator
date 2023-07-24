@@ -8,7 +8,7 @@ import { RouterView } from 'vue-router'
 
 <style>
 #app {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 .fade-enter-active,
@@ -20,4 +20,14 @@ import { RouterView } from 'vue-router'
 .fade-leave-to {
   opacity: 0;
 }
+
+.form-check-input:checked {
+  background-color: #00e17b !important;
+  border-color: #00e17b !important;
+}
+
+.form-check-input:focus {
+  border-color: #00e17b !important;
+}
+
 </style>

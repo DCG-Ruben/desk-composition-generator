@@ -28,7 +28,7 @@
                                     </div>
                                 </div>
                                 <div class="row h-50">
-                                    <div class="col-md-4 pt-5 border border-3 border-success rounded">
+                                    <div class="col-md-4 pt-5 border border-3 border-success rounded text-center">
                                         <div class="mt-4 text-nowrap fw-bold" style="transform: rotate(-90deg)">
                                             {{ desks.desk2 }}
                                         </div>
@@ -146,42 +146,107 @@
             </div>
             <div class="col ms-3">
                 <div class="row">
-                    <button type="button" class="btn btn-primary btn-lg btn-block" @click="randomizeDesks">
-                        Randomize desks
-                    </button>
+                    <div class="d-flex justify-content-center mb-2">
+                        <div class="form-text me-3">
+                            <h6>Per persoon</h6>
+                        </div>
+                        <div class="form-check form-switch" style="transform: scale(1.4); padding-top: .5%">
+                            <input class="form-check-input" type="checkbox" id="toggleMode" v-model="officeMode">
+                        </div>
+                        <div class="form-text ms-1">
+                            <h6>Hele kantoor</h6>
+                        </div>
+                    </div>
                 </div>
-                <div class="row mt-2">
-                    <form class="px-0">
-                        <div class="input-group">
-                            <input type="text" @keydown.enter.prevent="addPerson" class="form-control" v-model="newName" placeholder="Naam">
-                            <button type="button" class="btn btn-secondary btn-sm" @click="addPerson">
-                                Voeg toe
+                <transition name="fade" mode="out-in">
+                    <div class="row" v-if="officeMode">
+                        <div class="col-md-9 ps-0 pe-1">
+                            <button type="button" class="btn btn-primary btn-lg w-100" @click="randomizeDesks">
+                                Genereer indeling
                             </button>
                         </div>
-                    </form>
-                    <transition name="fade">
-                        <alert :message="message" :alertClass="alertClass" v-if="showMessage">
-                        </alert>
-                    </transition>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">Aanwezig:</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(person, index) in people" :key="index">
-                                <td>{{ person.name }}</td>
-                                <td class="pe-0" style="text-align: right">
-                                    <button type="button" class="btn btn-outline-danger btn-sm" @click="removePerson(person)">
-                                        Verwijder
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                        <div class="col-md-3 ps-1 pe-0">
+                            <button type="button" class="btn btn-danger btn-lg w-100" @click="resetAssignment">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" v-else>
+                        <div class="col-md-9 ps-0 pe-1">
+                            <button type="button" class="btn btn-primary btn-lg w-100" @click="addPerson('single')">
+                                Waar mag ik zitten?
+                            </button>
+                        </div>
+                        <div class="col-md-3 ps-1 pe-0">
+                            <button type="button" class="btn btn-danger btn-lg w-100" @click="resetAssignment">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </transition>
+                <transition name="fade" mode="out-in">
+                    <div class="row mt-2" v-if="officeMode">
+                        <form class="px-0">
+                            <div class="input-group">
+                                <input type="text" @keydown.enter.prevent="addPerson('office')" class="form-control" v-model="newNameOffice" placeholder="Naam">
+                                <button type="button" class="btn btn-secondary btn-sm" @click="addPerson('office')">
+                                    Voeg toe
+                                </button>
+                            </div>
+                        </form>
+                        <transition name="fade">
+                            <alert :message="message" :alertClass="alertClass" v-if="showMessage">
+                            </alert>
+                        </transition>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Aanwezig:</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(person, index) in people" :key="index">
+                                    <td>{{ person.name }}</td>
+                                    <td class="pe-0" style="text-align: right">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" @click="removePerson(person)">
+                                            Verwijder
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row mt-2" v-else>
+                        <form class="px-0">
+                            <div class="input-group">
+                                <input type="text" @keydown.enter.prevent class="form-control" v-model="newNameSingle" placeholder="Naam">
+                            </div>
+                        </form>
+                        <transition name="fade">
+                            <alert :message="message" :alertClass="alertClass" v-if="showMessage">
+                            </alert>
+                        </transition>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Al aangemeld:</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(person, index) in people" :key="index">
+                                    <td>{{ person.name }}</td>
+                                    <td class="pe-0" style="text-align: right">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" @click="removePerson(person)">
+                                            Verwijder
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </transition>
             </div>
         </div>
     </div>
@@ -194,7 +259,8 @@
     export default {
         data() {
             return {
-                newName: '',
+                newNameSingle: '',
+                newNameOffice: '',
                 people: [],
                 desks: {'desk1': '',
                         'desk2': '',
@@ -211,6 +277,7 @@
                 message: '',
                 showMessage: false,
                 alertClass: 'alert-success',
+                officeMode: false,
             };
         },
         components: {
@@ -223,20 +290,26 @@
                 this.showMessage = true;
                 setTimeout(() => this.showMessage = false, duration);
             },
-            addPerson() {
-                if (this.people.length >= 11) {
-                    this.activateAlert('Maximale capaciteit bereikt! Verwijder eerst iemand uit de lijst voordat je een nieuwe collega toevoegt', 'alert-danger', 3000);
-                } else if (this.newName === '') {
+            addPerson(mode) {
+                const newName = (mode == 'office') ? this.newNameOffice : this.newNameSingle
+                if (newName === '') {
                     this.activateAlert('Vul alsjeblieft eerst een naam in', 'alert-warning', 3000);
                 } else {
                     const path = `http://localhost:5001/office/people`;
                     const payload = {
-                        name: this.newName
+                        name: newName,
+                        mode: mode
                     };
-                    axios.post(path, payload).then(() => {
+                    axios.post(path, payload).then((res) => {
                         this.getPeople();
-                        this.activateAlert(this.newName + ' is succesvol toegevoegd!', 'alert-success', 1500);
-                        this.newName = '';
+                        const messageClass = (res.data.status == 'success') ? 'alert-success' : 'alert-danger'
+                        this.activateAlert(res.data.message, messageClass, 1500);
+                        if (mode == 'office') {
+                            this.newNameOffice = '';
+                        } else if (mode == 'single') {
+                            this.newNameSingle = '';
+                            this.desks = res.data.desks;
+                        }
                     }).catch((error) => {
                         console.log(error);
                         this.getPeople();
@@ -247,15 +320,15 @@
                 const path = `http://localhost:5001/office/people`;
                 axios.get(path).then((res) => {
                     this.people = res.data.people;
+                    this.desks = res.data.desks;
                 }).catch((error) => {
                     console.error(error);
                 });
             },
             randomizeDesks() {
-                this.getPeople();
                 const path = `http://localhost:5001/office/randomize`;
-                axios.get(path).then((res) => {
-                    this.desks = res.data.desks;
+                axios.get(path).then(() => {
+                    this.getPeople();
                 }).catch((error) => {
                     console.error(error);
                 });
@@ -268,6 +341,15 @@
                 }).catch((error) => {
                     console.error(error);
                     this.getPeople();
+                });
+            },
+            resetAssignment() {
+                const path = `http://localhost:5001/office/reset`;
+                axios.get(path).then((res) => {
+                    this.getPeople();
+                    this.activateAlert('De lijst met aanwezigen is succesvol gereset!', 'alert-success', 1500);
+                }).catch((error) => {
+                    console.error(error);
                 });
             },
         },
